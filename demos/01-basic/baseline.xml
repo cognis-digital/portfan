@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<nmaprun scanner="nmap" args="nmap -sV -oX baseline.xml 10.10.10.5" start="1700000000" version="7.94">
+  <host starttime="1700000000" endtime="1700000060">
+    <status state="up" reason="echo-reply"/>
+    <address addr="10.10.10.5" addrtype="ipv4"/>
+    <hostnames>
+      <hostname name="lab-web-01.example.test" type="PTR"/>
+    </hostnames>
+    <ports>
+      <port protocol="tcp" portid="22">
+        <state state="open" reason="syn-ack"/>
+        <service name="ssh" product="OpenSSH" version="8.2p1" method="probed" conf="10"/>
+      </port>
+      <port protocol="tcp" portid="23">
+        <state state="open" reason="syn-ack"/>
+        <service name="telnet" product="Linux telnetd" method="probed" conf="10"/>
+      </port>
+      <port protocol="tcp" portid="80">
+        <state state="open" reason="syn-ack"/>
+        <service name="http" product="Apache httpd" version="2.2.15" method="probed" conf="10"/>
+      </port>
+    </ports>
+  </host>
+</nmaprun>
