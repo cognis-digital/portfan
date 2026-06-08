@@ -1,0 +1,10 @@
+{
+  "name": "@cognis/portfan",
+  "version": "0.2.0",
+  "description": "JavaScript port of portfan (Cognis Neural Suite)",
+  "bin": {
+    "portfan": "index.js"
+  },
+  "license": "LicenseRef-COCL-1.0",
+  "type": "module"
+}
