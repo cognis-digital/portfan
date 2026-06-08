@@ -36,9 +36,10 @@ turn raw scans into a triage list
 <a name="features"></a>
 ## Features
 
-- ✅ Todo
-- ✅ Fixme
-- ✅ Xxx
+- ✅ Score Service
+- ✅ Parse Nmap Xml
+- ✅ Summarize
+- ✅ Diff Reports
 - ✅ Runs on Linux/macOS/Windows · Docker · devcontainer
 - ✅ Ports in Python, JavaScript, Go, and Rust (`ports/`)
 
