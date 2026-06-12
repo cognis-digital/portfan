@@ -16,7 +16,7 @@
 </div>
 
 ```bash
-pip install cognis-portfan
+pip install "git+https://github.com/cognis-digital/portfan.git"
 portfan scan .            # → prioritized findings in seconds
 ```
 
@@ -49,7 +49,7 @@ turn raw scans into a triage list
 ## Quick start
 
 ```bash
-pip install cognis-portfan
+pip install "git+https://github.com/cognis-digital/portfan.git"
 portfan --version
 portfan scan .                       # scan current project
 portfan scan . --format json         # machine-readable
