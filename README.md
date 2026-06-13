@@ -20,6 +20,42 @@ pip install cognis-portfan
 portfan scan .            # → prioritized findings in seconds
 ```
 
+## Usage — step by step
+
+1. Install the CLI (Python 3.9+):
+
+   ```bash
+   pip install git+https://github.com/cognis-digital/portfan.git
+   ```
+
+2. Run an nmap scan that emits XML, then triage it into prioritized findings:
+
+   ```bash
+   nmap -oX scan.xml -sV target.example.com
+   portfan triage scan.xml
+   ```
+
+3. Get machine-readable output for dashboards or tickets:
+
+   ```bash
+   portfan --format json triage scan.xml > findings.json
+   ```
+
+4. Diff a new scan against a baseline to surface newly exposed services:
+
+   ```bash
+   portfan diff baseline.xml scan.xml
+   ```
+
+5. Track exposure drift in CI:
+
+   ```yaml
+   - name: port exposure diff
+     run: |
+       pip install git+https://github.com/cognis-digital/portfan.git
+       portfan --format json diff baseline.xml scan.xml
+   ```
+
 ## Contents
 
 - [Why portfan?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
