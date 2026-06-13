@@ -43,10 +43,16 @@ _HIGH_RISK_SERVICES = {
 _OBSOLETE_VERSION_HINTS = (
     ("smbv1", "SMBv1 is obsolete (EternalBlue family)"),
     ("openssl/0.9", "Ancient OpenSSL"),
-    ("apache/2.0", "End-of-life Apache 2.0"),
-    ("apache/2.2", "End-of-life Apache 2.2"),
+    # nmap XML separates product and version with a space, so the banner is
+    # e.g. "apache httpd 2.2.15" — match product substring + version prefix.
+    ("apache httpd 2.0", "End-of-life Apache 2.0"),
+    ("apache httpd 2.2", "End-of-life Apache 2.2"),
+    ("apache/2.0", "End-of-life Apache 2.0"),   # raw-banner / HTTP Server header fallback
+    ("apache/2.2", "End-of-life Apache 2.2"),   # raw-banner / HTTP Server header fallback
     ("iis/6.0", "End-of-life IIS 6.0"),
+    ("microsoft-iis/6.0", "End-of-life IIS 6.0"),
     ("php/5.", "End-of-life PHP 5.x"),
+    ("php 5.", "End-of-life PHP 5.x"),
     ("openssh_4", "Very old OpenSSH"),
     ("openssh_5", "Old OpenSSH"),
     ("vsftpd 2.3.4", "vsftpd 2.3.4 backdoor banner"),

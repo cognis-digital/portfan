@@ -20,6 +20,12 @@ pip install "git+https://github.com/cognis-digital/portfan.git"
 portfan scan .            # → prioritized findings in seconds
 ```
 
+<!-- cognis:layman:start -->
+## What is this?
+
+PORTFAN takes the raw results of an nmap network scan — a file listing every open port and service found on your machines — and turns them into a clear, ranked list of things you should look at first. It flags risky services like Telnet, old software versions, and exposed databases, assigning each a severity level so you know what to fix before attackers find it. You can compare two scans over time to instantly see what changed: new ports that opened, old ones that closed, or software that was upgraded. It is aimed at system administrators, security teams, and developers who run nmap scans and want an easy way to act on the results without reading through raw XML.
+<!-- cognis:layman:end -->
+
 ## Contents
 
 - [Why portfan?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
@@ -46,6 +52,42 @@ turn raw scans into a triage list
 <div align="right"><a href="#top">↑ back to top</a></div>
 
 <a name="quick-start"></a>
+<!-- cognis:install:start -->
+## Install
+
+`portfan` is source-available (not published to PyPI) — every method below installs
+straight from GitHub. Pick whichever you prefer; the one-line scripts auto-detect
+the best tool available on your machine.
+
+**One-liner (Linux / macOS):**
+```sh
+curl -fsSL https://raw.githubusercontent.com/cognis-digital/portfan/HEAD/install.sh | sh
+```
+
+**One-liner (Windows PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/cognis-digital/portfan/HEAD/install.ps1 | iex
+```
+
+**Or install manually — any one of:**
+```sh
+pipx install "git+https://github.com/cognis-digital/portfan.git"     # isolated (recommended)
+uv tool install "git+https://github.com/cognis-digital/portfan.git"  # uv
+pip install "git+https://github.com/cognis-digital/portfan.git"      # pip
+```
+
+**From source:**
+```sh
+git clone https://github.com/cognis-digital/portfan.git
+cd portfan && pip install .
+```
+
+Then run:
+```sh
+portfan --help
+```
+<!-- cognis:install:end -->
+
 ## Quick start
 
 ```bash
