@@ -9,6 +9,29 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field, asdict
 from typing import Optional
 
+# Public API surface
+__all__ = [
+    "Finding",
+    "HostReport",
+    "score_service",
+    "parse_nmap_xml",
+    "summarize",
+    "diff_reports",
+    "TOOL_NAME",
+    "TOOL_VERSION",
+]
+
+TOOL_NAME = "portfan"
+TOOL_VERSION = "0.1.0"
+
+# Guard against absurdly large inputs (e.g. XML-bomb / memory DoS).
+# Real nmap XML for thousands of hosts is typically well under 100 MB.
+_MAX_INPUT_BYTES = 100 * 1024 * 1024  # 100 MB
+
+# Valid port range per IANA / RFC 793.
+_PORT_MIN = 1
+_PORT_MAX = 65535
+
 # ---------------------------------------------------------------------------
 # Risk model
 # ---------------------------------------------------------------------------
@@ -135,7 +158,18 @@ def score_service(service: str, product: str, version: str, port: int) -> tuple[
 
 
 def parse_nmap_xml(xml_text: str) -> list[HostReport]:
-    """Parse nmap -oX XML text into HostReport objects."""
+    """Parse nmap -oX XML text into HostReport objects.
+
+    Raises:
+        ValueError: if *xml_text* is empty, not valid XML, not an nmap XML
+            document, or exceeds the hard size limit.
+    """
+    if not xml_text or not xml_text.strip():
+        raise ValueError("Input is empty; expected nmap -oX XML content")
+    if len(xml_text.encode("utf-8", errors="replace")) > _MAX_INPUT_BYTES:
+        raise ValueError(
+            f"Input exceeds {_MAX_INPUT_BYTES // (1024 * 1024)} MB size limit"
+        )
     try:
         root = ET.fromstring(xml_text)
     except ET.ParseError as exc:
@@ -176,6 +210,10 @@ def parse_nmap_xml(xml_text: str) -> list[HostReport]:
                     portid = int(port_el.get("portid", "0"))
                 except ValueError:
                     portid = 0
+                # Skip entries with out-of-range port numbers; they are not
+                # valid TCP/UDP ports and would produce misleading findings.
+                if not (_PORT_MIN <= portid <= _PORT_MAX):
+                    continue
                 svc_el = port_el.find("service")
                 service = svc_el.get("name", "") if svc_el is not None else ""
                 product = svc_el.get("product", "") if svc_el is not None else ""

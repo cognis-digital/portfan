@@ -1,6 +1,10 @@
-"""PORTFAN MCP server — exposes scan() as an MCP tool for Cognis.Studio."""
+"""PORTFAN MCP server — exposes portfan_scan() as an MCP tool for Cognis.Studio."""
 from __future__ import annotations
-from portfan.core import scan, to_json
+
+import json
+
+from portfan.core import parse_nmap_xml, summarize
+
 
 def serve() -> int:
     """Start an MCP stdio server. Requires the optional 'mcp' extra:
@@ -8,15 +12,20 @@ def serve() -> int:
     """
     try:
         from mcp.server.fastmcp import FastMCP
-    except Exception:
+    except ImportError:
         print("Install the MCP extra: pip install 'cognis-portfan[mcp]'")
         return 1
     app = FastMCP("portfan")
 
     @app.tool()
-    def portfan_scan(target: str) -> str:
-        """Summarize and diff nmap XML into prioritized, attackable findings. Returns JSON findings."""
-        return to_json(scan(target))
+    def portfan_scan(xml_content: str) -> str:
+        """Summarize nmap XML into prioritized triage findings. Returns JSON."""
+        try:
+            reports = parse_nmap_xml(xml_content)
+            result = summarize(reports)
+        except ValueError as exc:
+            return json.dumps({"error": str(exc)})
+        return json.dumps(result, indent=2)
 
     app.run()
     return 0

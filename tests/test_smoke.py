@@ -1,6 +1,7 @@
 """Smoke tests for PORTFAN. No network access."""
 import json
 import os
+import tempfile
 import unittest
 
 from portfan import (
@@ -92,6 +93,106 @@ class TestCli(unittest.TestCase):
             main(["--format", "json", "triage", BASELINE])
         data = json.loads(buf.getvalue())
         self.assertIn("findings", data)
+
+
+class TestHardening(unittest.TestCase):
+    """Tests for the hardened input-validation and edge-case paths."""
+
+    # --- parse_nmap_xml edge cases ---
+
+    def test_empty_string_raises(self):
+        """parse_nmap_xml('') must raise ValueError, not propagate ET internals."""
+        with self.assertRaises(ValueError) as ctx:
+            parse_nmap_xml("")
+        self.assertIn("empty", str(ctx.exception).lower())
+
+    def test_whitespace_only_raises(self):
+        """Whitespace-only input is not valid XML content."""
+        with self.assertRaises(ValueError):
+            parse_nmap_xml("   \n\t  ")
+
+    def test_malformed_xml_raises(self):
+        """Broken XML must raise ValueError with a descriptive message."""
+        with self.assertRaises(ValueError) as ctx:
+            parse_nmap_xml("<?xml version='1.0'?><nmaprun><host UNCLOSED")
+        self.assertIn("nmap XML", str(ctx.exception))
+
+    def test_out_of_range_ports_skipped(self):
+        """Ports with portid <= 0 or > 65535 must be silently skipped."""
+        xml = (
+            '<nmaprun scanner="nmap">'
+            '<host><status state="up"/><address addr="1.2.3.4" addrtype="ipv4"/>'
+            '<ports>'
+            '<port protocol="tcp" portid="0"><state state="open"/>'
+            '<service name="zero"/></port>'
+            '<port protocol="tcp" portid="-1"><state state="open"/>'
+            '<service name="neg"/></port>'
+            '<port protocol="tcp" portid="99999"><state state="open"/>'
+            '<service name="toobig"/></port>'
+            '<port protocol="tcp" portid="22"><state state="open"/>'
+            '<service name="ssh"/></port>'
+            '</ports>'
+            '</host>'
+            '</nmaprun>'
+        )
+        reports = parse_nmap_xml(xml)
+        ports = {f.port for r in reports for f in r.findings}
+        # Only port 22 is within the valid 1-65535 range.
+        self.assertEqual(ports, {22})
+
+    def test_summarize_empty_reports(self):
+        """summarize([]) must return a well-formed dict with zero counts."""
+        s = summarize([])
+        self.assertEqual(s["hosts_total"], 0)
+        self.assertEqual(s["hosts_up"], 0)
+        self.assertEqual(s["open_services"], 0)
+        self.assertEqual(s["findings"], [])
+
+    def test_diff_both_empty(self):
+        """diff_reports([], []) must return zero counts without error."""
+        d = diff_reports([], [])
+        self.assertEqual(d["opened_count"], 0)
+        self.assertEqual(d["closed_count"], 0)
+        self.assertEqual(d["changed_count"], 0)
+
+    # --- CLI error-path tests ---
+
+    def test_directory_as_file_gives_exit_1(self):
+        """Passing a directory path instead of a file must exit with code 1."""
+        rc = main(["triage", tempfile.gettempdir()])
+        self.assertEqual(rc, 1)
+
+    def test_empty_file_gives_exit_1(self):
+        """An empty XML file must produce exit code 1 (parse error), not crash."""
+        with tempfile.NamedTemporaryFile(
+            suffix=".xml", delete=False, mode="w", encoding="utf-8"
+        ) as fh:
+            fh.write("")
+            tmp = fh.name
+        try:
+            rc = main(["triage", tmp])
+            self.assertEqual(rc, 1)
+        finally:
+            os.unlink(tmp)
+
+    def test_non_utf8_file_gives_exit_1(self):
+        """A binary / non-UTF-8 file must produce exit code 1, not a traceback."""
+        with tempfile.NamedTemporaryFile(
+            suffix=".xml", delete=False, mode="wb"
+        ) as fh:
+            fh.write(b"\xff\xfe<notxml>\x00\x01\x02")
+            tmp = fh.name
+        try:
+            rc = main(["triage", tmp])
+            self.assertEqual(rc, 1)
+        finally:
+            os.unlink(tmp)
+
+    def test_mcp_server_importable(self):
+        """portfan.mcp_server must be importable without ImportError."""
+        import importlib
+        mod = importlib.import_module("portfan.mcp_server")
+        self.assertTrue(callable(getattr(mod, "serve", None)))
 
 
 if __name__ == "__main__":

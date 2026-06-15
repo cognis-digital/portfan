@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from typing import Optional
 
@@ -21,6 +22,14 @@ from .core import parse_nmap_xml, summarize, diff_reports
 
 
 def _read(path: str) -> str:
+    """Read *path* as UTF-8 text.
+
+    Raises:
+        OSError: if the path does not exist, is a directory, or cannot be read.
+        ValueError: if the file content cannot be decoded as UTF-8.
+    """
+    if os.path.isdir(path):
+        raise OSError(f"'{path}' is a directory, not a file")
     with open(path, "r", encoding="utf-8") as fh:
         return fh.read()
 
@@ -107,6 +116,9 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     except (OSError, ValueError) as exc:
         print(f"{TOOL_NAME}: error: {exc}", file=sys.stderr)
+        return 1
+    except Exception as exc:  # pragma: no cover — safety net for unexpected errors
+        print(f"{TOOL_NAME}: unexpected error: {exc}", file=sys.stderr)
         return 1
 
     return 0

@@ -1,10 +1,7 @@
 """portfan — part of the Cognis Neural Suite."""
 try:  # re-export the tool's public API + identity from core
     from portfan.core import *  # noqa: F401,F403
-except Exception:  # pragma: no cover
-    pass
-try:
-    from portfan.core import TOOL_NAME, TOOL_VERSION
+    from portfan.core import TOOL_NAME, TOOL_VERSION  # noqa: F401
 except Exception:  # pragma: no cover
     TOOL_NAME = "portfan"
     TOOL_VERSION = "0.1.0"
