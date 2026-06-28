@@ -1,0 +1,17 @@
+$ portfan-emit --help
+
+usage: portfan [-h] [--version] [--format {table,json}] {triage,diff} ...
+
+Summarize and diff nmap XML into prioritized triage findings (defensive
+analysis only — no scanning, no network).
+
+positional arguments:
+  {triage,diff}
+    triage              Summarize one nmap XML scan.
+    diff                Diff two nmap XML scans.
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  --format {table,json}
+                        Output format (default: table).

@@ -20,6 +20,56 @@ pip install cognis-portfan
 portfan scan .            # → prioritized findings in seconds
 ```
 
+
+<!-- cognis:example:start -->
+## 🔎 Example output
+
+Real, reproducible output from the tool — runs offline:
+
+```console
+$ portfan-emit --version
+portfan 0.1.0
+```
+
+```console
+$ portfan-emit --help
+usage: portfan [-h] [--version] [--format {table,json}] {triage,diff} ...
+
+Summarize and diff nmap XML into prioritized triage findings (defensive
+analysis only — no scanning, no network).
+
+positional arguments:
+  {triage,diff}
+    triage              Summarize one nmap XML scan.
+    diff                Diff two nmap XML scans.
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  --format {table,json}
+                        Output format (default: table).
+```
+
+> Blocks above are real `portfan` output — reproduce them from a clone.
+
+**Sample result format** _(illustrative values — run on your own data for real findings):_
+
+```
+{
+"findings": [
+    {
+        "id": "1234567890",
+        "title": "Suspicious Activity Detected",
+        "description": "Anomalous network traffic detected from IP 192.168.1.100",
+        "severity": "high",
+        "created": "2023-02-20T14:30:00Z"
+    }
+]
+}
+```
+
+<!-- cognis:example:end -->
+
 ## Usage — step by step
 
 1. Install the CLI (Python 3.9+):

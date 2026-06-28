@@ -1,0 +1,3 @@
+$ portfan-emit --version
+
+portfan 0.1.0
